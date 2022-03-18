@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+
+  ## PHP-FPM Container ############
+  php-fpm:
+    build:
+      args:
+        user: builder
+        uid: 1000
+      context: ./
+      dockerfile: ./Docker/php/Dockerfile
+    image: builder
+    container_name: builder-php-fpm
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - builder-network
+
+  ## NGINX Container #############
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: builder-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/html
+      - ./Docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - builder-network
+
+networks:
+  builder-network:
+    driver: bridge
