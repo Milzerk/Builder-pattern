@@ -6,34 +6,57 @@ use App\classes\Node;
 
 abstract class BuilderArray
 {
-    private Node $lastNode;
+
+    private array $childrensNode;
     private Node $root;
+    private bool $hasChild;
 
-    public function __construct($keyRoot = 'root')
+    public function __construct()
     {
-        $this->root = new Node($keyRoot);
-        $this->lastNode = $this->root;
+        $this->hasChild = false;
+        $this->childrensNode = [];
+        $this->brothersNode = [];
     }
 
-    protected function addNode(string $key)
+    public function builder($keyRoot = 'query')
     {
-        $node = new Node($key);
-        $this->lastNode->addChildren($node);
-        $this->lastNode = $node;
+        $this->next();
+
+        $this->addNode($keyRoot);
+        $this->root = $this->childrensNode[0];
+        return $this;
     }
 
-    public function getRoot()
+    protected function addNode(string $key, mixed $value = null, bool $hasChild = true)
     {
-        return $this->root;
+        $newNode = new Node($key, $value);
+        if(!empty($this->childrensNode) && $this->hasChild) {
+            foreach ($this->childrensNode as $node) {
+                $newNode->addChildren($node);
+            }
+            $this->childrensNode = [];
+        }
+        $this->childrensNode[] = $newNode;
+    }
+
+    public function end()
+    {
+        $this->hasChild = false;
+        return $this;
+    }
+
+    public function next()
+    {
+        $this->hasChild = true;
+        return $this;
     }
 
     public function buildArray()
     {
-        return $this->root->keyChildrens();
-    }
+        if(!isset($this->root)) {
+            $this->builder();
+        }
 
-    public function currentNode()
-    {
-        return $this->lastNode;
+        return $this->root->keyChildrens();
     }
 }

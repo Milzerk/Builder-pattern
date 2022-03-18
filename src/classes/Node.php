@@ -8,17 +8,31 @@ class Node
 {
     private string $key;
     private array $childrens;
+    private ?Node $parent;
     private bool $leaf;
+    private mixed $value;
 
-    public function __construct(string $key)
+    public function __construct(string $key, mixed $value = null)
     {
         $this->key = $key;
         $this->leaf = true;
+        $this->value = $value;
     }
 
+    public function setParent(Node $node)
+    {
+        $this->parent = $node;
+    }
+
+    public function getParent()
+    {
+        return $this->parent;
+    }
+    
     public function addChildren(Node $children)
     {
         $this->leaf = false;
+        $children->setParent($this);
         $this->childrens[] = $children;
     }
 
@@ -26,7 +40,7 @@ class Node
     {
 
         if ($this->leaf) {
-            $ke[$this->key] = [];
+            $ke[$this->key] = $this->value;
             return $ke;
         }
 
