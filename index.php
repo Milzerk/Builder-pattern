@@ -1,50 +1,44 @@
 <?php
 
-use App\builders\Roles;
-use App\elasticBuilders\Must;
+use App\builders\CompoundBuild;
 
 require_once "vendor/autoload.php";
 
-$regra = new Roles;
+function dd(...$args)
+{
+    echo '<pre>';
+    foreach ($args as $arg) {
+        var_dump($arg);
+    }
+    echo '</pre>';
+    die();
+}
 
-// $regra->must()->bool()->equals();
-$regra->must(
-    $regra->bool(
-        $regra->must(
-            // $regra->match('nome', 'João'),
-            // $regra->match('nome', 'pedro'),
+function printJson(array $json)
+{
+    echo json_encode($json, JSON_PRETTY_PRINT);
+    exit;
+}
 
-        )
-    ),
-    $regra->bool(
-        $regra->must()
-    ),
-);
+$builder = new CompoundBuild();
 
-// $regra->builder()->bool(
-//     $regra->must(
-//         $regra->equals(
-//             $regra->match('nome', 'Miller'),
-//             // $regra->match('idade', 25),
-//             // $regra->match('data', '2019-01-01'),
-//         )
-//     )
-// );
+$builder->bool()->must()
+    ->term('name', 'test')
+    ->term('name', 'test2');
 
-// $regra
-//     ->bool()
-//         ->should()
-//             ->equals()
-//                 ->match('nome', 'teste')
-//                 ->match('nome', 'teste2')
-//             ->end()
-//         ->end()
-//         ->must()
-//             ->equals()
-//                 ->match('nome', 'teste')
-//                 ->match('nome', 'teste2')
-//             ->end()
-//         ->end()
-//     ->end();
+$builder->bool()->must()->term('idade', 23);
 
-echo json_encode($regra->buildArray());
+$must = $builder->bool()->must();
+$must->term('idade12', 24);
+$must->term('idad', 246);
+$must->term('idade4', 247);
+
+
+$builder->bool()->mustNot()->term('name2', 'test')->term('name1', 'test2');
+$builder->must();
+
+
+printJson($builder->builder());
+dd($builder);
+$builder->builder();
+
